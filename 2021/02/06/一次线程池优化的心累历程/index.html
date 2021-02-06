@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一次上线之后，我们系统出现了所有页面无法打开的问题，但这个问题不是持续的，简单来说会有几分钟所有功能不可用，未做任何action的情况下，过一会又恢复了，如此反反复复，一天内系统都处于半瘫痪状态。 这问题被定义为生产事故，虽然即时响应解决了该问题，但其根因是线程池使用不合理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发优化-线程池优化">
+<meta property="og:url" content="http://example.com/2021/02/06/%E4%B8%80%E6%AC%A1%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BC%98%E5%8C%96%E7%9A%84%E5%BF%83%E7%B4%AF%E5%8E%86%E7%A8%8B/index.html">
+<meta property="og:site_name" content="没有人的博客">
+<meta property="og:description" content="一次上线之后，我们系统出现了所有页面无法打开的问题，但这个问题不是持续的，简单来说会有几分钟所有功能不可用，未做任何action的情况下，过一会又恢复了，如此反反复复，一天内系统都处于半瘫痪状态。 这问题被定义为生产事故，虽然即时响应解决了该问题，但其根因是线程池使用不合理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/%E7%BD%91%E7%BB%9C%E4%BA%A4%E4%BA%92.jpg">
+<meta property="og:image" content="http://example.com/images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86.png">
+<meta property="og:image" content="http://example.com/images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
+<meta property="article:published_time" content="2021-02-06T12:06:15.027Z">
+<meta property="article:modified_time" content="2021-02-06T12:06:15.027Z">
+<meta property="article:author" content="没有人">
+<meta property="article:tag" content="博客">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/%E7%BD%91%E7%BB%9C%E4%BA%A4%E4%BA%92.jpg">
+
+<link rel="canonical" href="http://example.com/2021/02/06/%E4%B8%80%E6%AC%A1%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BC%98%E5%8C%96%E7%9A%84%E5%BF%83%E7%B4%AF%E5%8E%86%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>并发优化-线程池优化 | 没有人的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">没有人的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/06/%E4%B8%80%E6%AC%A1%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BC%98%E5%8C%96%E7%9A%84%E5%BF%83%E7%B4%AF%E5%8E%86%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/upload/avatar.jpg">
+      <meta itemprop="name" content="没有人">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有人的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          并发优化-线程池优化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-06 20:06:15" itemprop="dateCreated datePublished" datetime="2021-02-06T20:06:15+08:00">2021-02-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F%E4%BC%98%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">系统优化</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一次上线之后，我们系统出现了所有页面无法打开的问题，但这个问题不是持续的，简单来说会有几分钟所有功能不可用，未做任何action的情况下，过一会又恢复了，如此反反复复，一天内系统都处于半瘫痪状态。</p>
+<p>这问题被定义为生产事故，虽然即时响应解决了该问题，但其根因是线程池使用不合理。</p>
+<a id="more"></a>
+
+<h3 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h3><p>因业务背景和技术要求，我们系统中大部分接口是通过mqtt协议进行交互，简单的交互过程如下：<br><img src="/images/%E7%BD%91%E7%BB%9C%E4%BA%A4%E4%BA%92.jpg" alt="网络交互图"></p>
+<p>客户端浏览器发送请求给消息中间件到指定的topic1，业务系统订阅topic1上的消息，处理并返回到消息中间件topic2上，客户端浏览器通过定义topic2上的消息即可获得业务系统的respons。</p>
+<h4 id="消息阻塞导致系统瘫痪原因"><a href="#消息阻塞导致系统瘫痪原因" class="headerlink" title="消息阻塞导致系统瘫痪原因"></a>消息阻塞导致系统瘫痪原因</h4><p>经过多番查找以及验证，我们发现新功能的一个接口处理耗时过长，消息消费被阻塞。我们通过Thead.sleep让一个接口阻塞，通过频繁触发该接口得到生产环境瘫痪一样的问题。基于以上信息可以确定是某个接口处理耗时过长引起消息中间件阻塞，引发了系统瘫痪。<br>消息阻塞问题一直都存在，只是这个接口放大了结果，才引起我们的重视。</p>
+<p><strong><em>此处让人困惑，我们系统是单线程在运行？</em></strong></p>
+<h4 id="线程池不work"><a href="#线程池不work" class="headerlink" title="线程池不work"></a>线程池不work</h4><p>查看代码，处理消息的方法明显使用了自定义的线程池异步处理，代码如下</p>
+<pre><code>@Async(&quot;threadPoolTaskExecutor&quot;) 
+public void handle(Command command) &#123;
+</code></pre>
+<p>threadPoolTaskExecutor 配置如下：</p>
+<pre><code>corePoolSize: 10  
+maxPoolSize: 200  
+queueCapacity: 1000
+</code></pre>
+<p>通过观察日志发现，该方法内输出的日志只有一个线程在处理，日志如下：</p>
+<pre><code>2021-01-03 08:16:55.528 INFO 6 --- [ionThreadPool-1] c.g.b.a.c. ......
+</code></pre>
+<p>我尝试触发所有接口请求，日志始终只有名为“ionThreadPool-1”的线程在输出，而我们配置的线程池名称为“xx-collaborator-”开头，显然并不是线程池中的线程在处理。</p>
+<p><strong><em>此处让人很困惑，为什么线程池不work？</em></strong></p>
+<h4 id="让线程池Run起来"><a href="#让线程池Run起来" class="headerlink" title="让线程池Run起来"></a>让线程池Run起来</h4><p>我查看handle方法被调用的地方，看到如下接口：</p>
+<pre><code>default void handle(List&lt;Command&gt; commands) &#123;
+    commands.forEach(this::handle);
+&#125;
+
+void handle(Command command);
+</code></pre>
+<p>在外部均调用handle(List<Command> commands) 方法，并且很奇怪的把单独一个command装到list里面，再调用，调用代码：</p>
+<pre><code>commandDispatcher.handle(ImmutableList.of(command));
+</code></pre>
+<p>这行代码让我觉得不合理，直接调用handle(Command command)即可，为什么要绕个圈？我把代码改成</p>
+<pre><code>commandDispatcher.handle(command);
+</code></pre>
+<p>再次测试，发现输出日志的线程名称变成以“xx-collaborator-”为前缀，线程池Run起来了。</p>
+<p><strong><em>但是仔细观察，线程编号最大的是10，即“xx-collaborator-10”。</em></strong></p>
+<p><em>ps：从代码逻辑来看，handle(List<Command> commands) 方法调用了handle(Command command)方法，理论上应该还是由线程池来处理，此处比较疑惑，但并不是本次的核心问题，我没继续深究。</em></p>
+<h4 id="让线程池飞起来"><a href="#让线程池飞起来" class="headerlink" title="让线程池飞起来"></a>让线程池飞起来</h4><p>调整线程池大小之前，我们得先了解线程池的工作原理，网上有很多，我随便摘了一段过来</p>
+<p>线程池工作原理：</p>
+<p><img src="/images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86.png" alt="线程池工作原理"><br>图片摘自<a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">美团技术团队博客</a></p>
+<p>线程池的核心配置参数关系如下：  </p>
+<ul>
+<li>首先检测线程池运行状态，如果不是RUNNING，则直接拒绝，线程池要保证在RUNNING的状态下执行任务。  </li>
+<li>如果workerCount &lt; corePoolSize，则创建并启动一个线程来执行新提交的任务。  </li>
+<li>如果workerCount &gt;= corePoolSize，且线程池内的阻塞队列未满，则将任务添加到该阻塞队列中。  </li>
+<li>如果workerCount &gt;= corePoolSize &amp;&amp; workerCount &lt; maximumPoolSize，且线程池内的阻塞队列已满，则创建并启动一个线程来执行新提交的任务。  </li>
+<li>如果workerCount &gt;= maximumPoolSize，并且线程池内的阻塞队列已满, 则根据拒绝策略来处理该任务, 默认的处理方式是直接抛异常。  </li>
+</ul>
+<p>其执行流程图如下：</p>
+<p><img src="/images/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt="线程池执行流程图"><br>图片摘自<a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html">美团技术团队博客</a></p>
+<p>那么问题来了，corePoolSize、maxPoolSize、queueCapacity 三个参数如何才是最佳？<br>答案是没有套路，针对不同应用场景使用不同的策略。</p>
+<p>可以简单把应用场景分为*<strong>快速响应用户请求**<em>和</em></strong>快速处理批量任务两种*<strong>，我们系统属于**<em>快速响应用户请求</em></strong>，跟tomcat等容器类似。</p>
+<p>corePoolSize: 越大，意味着支撑的并发数也就越大，我们期望每次请求都会有线程马上处理，因此需要有足够多的线程。同时，线程也不是越多越好，线程数量会影响cpu的使用率，cpu使用率过高，会影响操作系统的运行，经过多次调整和性能压测，我们最终确定corePoolSize为100。<br>如果有一天并发数太大，100线程不能支持的情况下，我们会考虑负载均衡来支持更大的并发。</p>
+<p>queueCapacity: 快速响应用户请求的场景下，希望请求会被马上处理，不进入任务队列中等待，那么queueCapacity的值就尽可能小，最终确定为10。可能你会问为什么不能为0？通过线程池的执行流程，我们可以看出当没有空闲线程，并且queueCapacity没有容量的情况下，就会拒绝任务（拒绝策略有多种，不详细说），设为10只是以防突然并发导致请求失败。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ol>
+<li> 发现问题<br>本次我通过分析系统日志找到线程池不工作、效率低下等问题，实际有很多工具可以协助我们查看系统线程运行情况，比如说VisualVM等</li>
+<li>配置优化<br>通过优化配置来提升系统并发性能没有套路，建议在有性能期望（性能需求），自动化压测脚本的情况下，细微调整，不断压测，从每次测试结果对比中找到最佳配置</li>
+<li>硬件资源与线程池<br>网上有很多文章尝试计算线程池核心线程数与硬件配置的公式，我个人认为无用，多去压测，多去观察硬件资源消耗情况，不断调整配置，得到期望的结果才是正确的方式。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8D%9A%E5%AE%A2/" rel="tag"># 博客</a>
+          </div>
+
+        
+
+
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E7%8E%B0%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">发现问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%BB%E5%A1%9E%E5%AF%BC%E8%87%B4%E7%B3%BB%E7%BB%9F%E7%98%AB%E7%97%AA%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.1.</span> <span class="nav-text">消息阻塞导致系统瘫痪原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%B8%8Dwork"><span class="nav-number">1.2.</span> <span class="nav-text">线程池不work</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A9%E7%BA%BF%E7%A8%8B%E6%B1%A0Run%E8%B5%B7%E6%9D%A5"><span class="nav-number">1.3.</span> <span class="nav-text">让线程池Run起来</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A9%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%A3%9E%E8%B5%B7%E6%9D%A5"><span class="nav-number">1.4.</span> <span class="nav-text">让线程池飞起来</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="没有人"
+      src="/upload/avatar.jpg">
+  <p class="site-author-name" itemprop="name">没有人</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">没有人</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'http://example.com/2021/02/06/%E4%B8%80%E6%AC%A1%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BC%98%E5%8C%96%E7%9A%84%E5%BF%83%E7%B4%AF%E5%8E%86%E7%A8%8B/',]
+      });
+      });
+  </script>
+
+</body>
+</html>
