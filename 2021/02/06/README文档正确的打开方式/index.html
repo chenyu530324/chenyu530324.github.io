@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Read me 翻译为“读我”，每个软件工程都有一份read me 文档，作为该工程的开发、使用说明。一份好的read me 文档往往能提高团队的开发效率，知识传播，尤其是帮助团队新人快速融入团队、了解业务、尽早产出。然而read me 文档经常不被重视或者不足以指导团队开发，甚至Read me中空空如也。那么一份好的read me文档应该包括哪些要素呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="README文档正确的打开方式">
+<meta property="og:url" content="http://example.com/2021/02/06/README%E6%96%87%E6%A1%A3%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="没有人的博客">
+<meta property="og:description" content="Read me 翻译为“读我”，每个软件工程都有一份read me 文档，作为该工程的开发、使用说明。一份好的read me 文档往往能提高团队的开发效率，知识传播，尤其是帮助团队新人快速融入团队、了解业务、尽早产出。然而read me 文档经常不被重视或者不足以指导团队开发，甚至Read me中空空如也。那么一份好的read me文档应该包括哪些要素呢？">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-02-06T12:06:15.027Z">
+<meta property="article:modified_time" content="2021-03-04T14:33:38.172Z">
+<meta property="article:author" content="没有人">
+<meta property="article:tag" content="READ ME">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/02/06/README%E6%96%87%E6%A1%A3%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>README文档正确的打开方式 | 没有人的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">没有人的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-首页">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-标签">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-分类">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-归档">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-联系我">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>联系我</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/06/README%E6%96%87%E6%A1%A3%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/upload/avatar.jpg">
+      <meta itemprop="name" content="没有人">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有人的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          README文档正确的打开方式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-06 20:06:15" itemprop="dateCreated datePublished" datetime="2021-02-06T20:06:15+08:00">2021-02-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-04 22:33:38" itemprop="dateModified" datetime="2021-03-04T22:33:38+08:00">2021-03-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" itemprop="url" rel="index"><span itemprop="name">最佳实践</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Read me 翻译为“读我”，每个软件工程都有一份read me 文档，作为该工程的开发、使用说明。一份好的read me 文档往往能提高团队的开发效率，知识传播，尤其是帮助团队新人快速融入团队、了解业务、尽早产出。然而read me 文档经常不被重视或者不足以指导团队开发，甚至Read me中空空如也。那么一份好的read me文档应该包括哪些要素呢？</p>
+<a id="more"></a>
+
+<h3 id="Read-me-文档的价值"><a href="#Read-me-文档的价值" class="headerlink" title="Read me 文档的价值"></a>Read me 文档的价值</h3><h4 id="提升效率"><a href="#提升效率" class="headerlink" title="提升效率"></a>提升效率</h4><p>早些年我开发过jsp, 会一些简单的HTML、CSS和JS，前后端分离后，我一直从事后端开发，因此对后续的NodeJs、VUE等前端技术一点不会。某天因某些原因，我需要帮助前端团队完成一个简单的功能，我把前端代码clone 到本地后，首先想到的是先在本机运行起，方便调试。但我打开代码根目录下的“README” 文档，里面空空如也。</p>
+<p>我不知道如何启动node，不知道本机需要准备哪些环境才能运行，自己在网上找了资料（我知道前端是angularjs开发的），也找了一个前端小伙伴询问，好在项目不复杂，坎坎坷坷终于在下午2点在本地运行起了前端服务。</p>
+<p><strong>如果有一份比较好的Read me 文档，那这半天时间不会如此白白浪费。我相信任何一个团队新人，即使是具备前端开发经验的小伙伴也会遇到类似的问题</strong></p>
+<h4 id="知识的传播"><a href="#知识的传播" class="headerlink" title="知识的传播"></a>知识的传播</h4><p>然而接下来又是一脸懵，代码组织结构是什么样的，我该从哪开始阅读第一个页面？没办法，每个团队的规定不一样，找了另一个前端开发小伙伴花了半小时跟我讲解，终于我在下午4点写下了这么多年来的第一行前端代码…….</p>
+<p>Code review 的时候，我的代码被其他前端小伙伴提出了很多改进点，但这些都是我不知道的，造成了不少的返工。最终我比超出估点三分之一时间完成这部分工作。</p>
+<p><strong>如果有一份比较好的Read me 文档，能让我更顺利完成这部分工作，包括代码质量和效率都会有提升。</strong></p>
+<h3 id="Read-me-文档需要包括哪些信息"><a href="#Read-me-文档需要包括哪些信息" class="headerlink" title="Read me 文档需要包括哪些信息"></a>Read me 文档需要包括哪些信息</h3><p>那么，一份好的Read me 文档需要包括哪些信息？以我的经验，应该包括如下几要素：</p>
+<ul>
+<li>信息安全要求</li>
+<li>业务简介</li>
+<li>名词解释</li>
+<li>系统架构图</li>
+<li>项目技术</li>
+<li>开发规范</li>
+<li>本机环境搭建</li>
+<li>项目其他信息</li>
+</ul>
+<p>挨个看为什么需要包括上面这些信息，这些信息该如何组织。</p>
+<h4 id="信息安全要求"><a href="#信息安全要求" class="headerlink" title="信息安全要求"></a>信息安全要求</h4><p>信息安全对每个项目都是非常重要的，我们常听说某某互联网产品泄漏了用户信息，某某项目成员把密钥提交到了GitHub上。因这些信息泄漏带来的后果是不可估量的。然而很多团队还是不引起重视，造成恶劣影响后才追悔莫及。</p>
+<p>因此我把信息安全列在第一，当团队有新人加入以后，首先应该认真阅读Read me 文档，把信息安全重视起来，最好有一个团队成员带领新人一起认真解读信息安全要求。</p>
+<p>信息安全要求包括但不仅限于日常工作规范要求，能根据项目情况，列举一些具体场景（例如如何操作生产数据库等）的规范那就更好了。</p>
+<h4 id="业务简介"><a href="#业务简介" class="headerlink" title="业务简介"></a>业务简介</h4><p>一般Read me 是让团队成员或者团队新人Onborading时候的一手资料，能通过read me 文档让新人初步了解项目服务的业务域，了解业务背景，有助于新人更快熟悉业务。</p>
+<h4 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h4><p>众所周知，代码都是英文，同一个中文有很多种翻译。针对业务中出现的名词给出团队达成一致的名词解释以及翻译，可以提高代码的可读性以及命名的规范。比如说<em>学员</em>一词，既可以翻译为<em>Student</em>，也可以翻译为<em>Trainee</em>。不论使用哪一个单词都是没问题的，但需要团队内部统一。</p>
+<h4 id="系统架构图"><a href="#系统架构图" class="headerlink" title="系统架构图"></a>系统架构图</h4><p>系统架构图是了解系统再好不过的途径，从系统全貌全面了解系统中的各个服务、自己团队的位置（尤其是多团队开发）。即使是团队已有成员也不一定每个人都熟悉系统架构。</p>
+<h4 id="项目技术"><a href="#项目技术" class="headerlink" title="项目技术"></a>项目技术</h4><p>列举出项目中采用的技术，如果有必要，请带上技术版本。一个新人发现有不了解的技术，会在需要它之前学习，而不是需要用时从网上复制代码。</p>
+<h4 id="开发规范"><a href="#开发规范" class="headerlink" title="开发规范"></a>开发规范</h4><p>开发规范中包括代码分层结构介绍以及团队内部一些特殊规定，包括但不仅限于代码风格、DDD规则、提交规范、UnitTest要求等等。</p>
+<p>我们曾在一次Code review中讨论明确DDD分层规则，及时把讨论结果记录在Read me文档中。一次我纠结于一个方法的调用该放在哪一层，然而我顺手打开Read me，再次阅读上次讨论的结果，我的疑问马上就清晰了起来。</p>
+<h4 id="本机环境搭建"><a href="#本机环境搭建" class="headerlink" title="本机环境搭建"></a>本机环境搭建</h4><p>这部分详细讲解如何在本机搭建开发环境，尽可能讲的详细一些，因为团队每个人的能力是参差不齐的。如果能让一个非开发人员都能操作那就更好了，比如说能让一个QA小伙伴顺利搭建开发环境。</p>
+<p>项目的集成测试依赖openssl 库1.0版，操作系统自带的是1.1版。小伙伴A把版本切换详细步骤写在了Read me文档中，当小伙伴B询问我如何解决的时候，我告诉他Read me中有说明，小伙伴B很快把问题解决了。</p>
+<h3 id="如何持续维护"><a href="#如何持续维护" class="headerlink" title="如何持续维护"></a>如何持续维护</h3><p><strong><em>请不要让README变成无效文档</em></strong></p>
+<p>随着项目的进展，业务、架构、技术等都在不断变化，建议每个迭代检查一次，如果有信息变化，请及时更新。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>好记性不如烂笔头，把你认为应该告诉新人的事情写在Read me中，把你认为新人可能会遇到的问题以及解决办法写在Read me中，作为团队的知识沉淀或者传播，你花费在README文档上的时间、精力最终会随着时间推移看，其带来的价值越来越大。</p>
+<p>以上这些是我在多个项目中实践总结出来的，但不一定适合任何团队，根据你所在的团队适当调整，适合自己团队的Read me文档才是最好的。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/READ-ME/" rel="tag"># READ ME</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/06/%E4%B8%80%E6%AC%A1%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BC%98%E5%8C%96%E7%9A%84%E5%BF%83%E7%B4%AF%E5%8E%86%E7%A8%8B/" rel="prev" title="记一次线上并发优化">
+      <i class="fa fa-chevron-left"></i> 记一次线上并发优化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/06/PlantUML%20%E5%AE%9E%E7%8E%B0%E9%A2%86%E5%9F%9F%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%AE%9E%E8%B7%B5/" rel="next" title="PlantUML 实现领域模型可视化实践">
+      PlantUML 实现领域模型可视化实践 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-me-%E6%96%87%E6%A1%A3%E7%9A%84%E4%BB%B7%E5%80%BC"><span class="nav-number">1.</span> <span class="nav-text">Read me 文档的价值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87"><span class="nav-number">1.1.</span> <span class="nav-text">提升效率</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%9A%84%E4%BC%A0%E6%92%AD"><span class="nav-number">1.2.</span> <span class="nav-text">知识的传播</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-me-%E6%96%87%E6%A1%A3%E9%9C%80%E8%A6%81%E5%8C%85%E6%8B%AC%E5%93%AA%E4%BA%9B%E4%BF%A1%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">Read me 文档需要包括哪些信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E8%A6%81%E6%B1%82"><span class="nav-number">2.1.</span> <span class="nav-text">信息安全要求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E7%AE%80%E4%BB%8B"><span class="nav-number">2.2.</span> <span class="nav-text">业务简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A"><span class="nav-number">2.3.</span> <span class="nav-text">名词解释</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%9B%BE"><span class="nav-number">2.4.</span> <span class="nav-text">系统架构图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E6%8A%80%E6%9C%AF"><span class="nav-number">2.5.</span> <span class="nav-text">项目技术</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83"><span class="nav-number">2.6.</span> <span class="nav-text">开发规范</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AC%E6%9C%BA%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">2.7.</span> <span class="nav-text">本机环境搭建</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8C%81%E7%BB%AD%E7%BB%B4%E6%8A%A4"><span class="nav-number">3.</span> <span class="nav-text">如何持续维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="没有人"
+      src="/upload/avatar.jpg">
+  <p class="site-author-name" itemprop="name">没有人</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">没有人</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'http://example.com/2021/02/06/README%E6%96%87%E6%A1%A3%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%89%93%E5%BC%80%E6%96%B9%E5%BC%8F/',]
+      });
+      });
+  </script>
+
+</body>
+</html>
